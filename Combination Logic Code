@@ -1,0 +1,127 @@
+////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+ORG 0FFF3H
+
+BLINK_LED:
+MOV P1, #31         ; Turn ON all LEDs (P1.0 - P1.4, 31 = 11111)
+CALL DELAY
+MOV P1, #0         ; Turn OFF all LEDs
+CALL DELAY
+RETI       ; Back to MAIN function
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
+ORG 8100H
+
+SETB TCON.3;
+MOV IE, #10000100B;
+
+MOV DPTR, #9000H
+MOV A, #01H
+MOVX @DPTR, A //9000
+INC DPTR
+
+MOV A, #00H
+MOVX @DPTR, A //9001
+INC DPTR
+
+MOV A, #00H
+MOVX @DPTR, A //9002
+INC DPTR
+
+MOV A, #00H
+MOVX @DPTR, A //9003
+INC DPTR
+
+MOV A, #01H
+MOVX @DPTR, A //9004
+INC DPTR
+
+MOV A, #00H
+MOVX @DPTR, A //9005
+INC DPTR
+
+MOV A, #00H
+MOVX @DPTR, A //9006
+INC DPTR
+
+MOV A, #00H
+MOVX @DPTR, A //9007
+INC DPTR
+
+MOV A, #01H
+MOVX @DPTR, A //9008
+INC DPTR
+
+MOV A, #00H
+MOVX @DPTR, A //9009
+INC DPTR
+
+MOV A, #00H
+MOVX @DPTR, A //900A
+INC DPTR
+
+MOV A, #00H
+MOVX @DPTR, A //900B
+INC DPTR
+
+MOV A, #01H
+MOVX @DPTR, A //900C
+INC DPTR
+
+MOV A, #01H
+MOVX @DPTR, A //900D
+INC DPTR
+
+MOV A, #01H
+MOVX @DPTR, A //900E
+INC DPTR
+
+MOV A, #01H
+MOVX @DPTR, A //900F
+
+
+
+
+MOV R0, #00 //LOADING THE VALUE 0000 INTO R0
+
+MAIN:
+MOV DPTR, #9000H //DPTR to base address
+MOV P1, R0 //move the bit value from R0 to P1.0 - P1.3
+MOV A, R0 //move the current bit address to the A
+
+ADD A, DPL
+MOV DPL, A
+MOVX A, @DPTR //load the current value of the function from the truth table to A
+
+JNB ACC.0, LED_OFF //if the accumulator value i.e. the function value is 0, then set P1.4 pin to LOW
+SETB P1.4 //otherwise i.e. when the func. value is 1, set the P1.4 pin HIGH
+SJMP CONTINUE
+
+LED_OFF:
+CLR P1.4 //set the P1.4 pin LOW
+
+CONTINUE:
+CALL DELAY //calling the DELAY func.
+INC R0 //increasing the value of the R0
+CJNE R0, #16, MAIN //checking if R0 crosses the value 1111. if not then back to main loop
+
+MOV R0, #00 //if R0 crosses 1111, then make it 0000, and then start the main loop again
+SJMP MAIN
+
+
+
+DELAY:
+MOV R5,#8
+L3:
+MOV R4,#125
+L2:
+MOV R3,#250
+L1:        ; delay=1000us=1s
+DJNZ R3,L1
+DJNZ R4,L2
+DJNZ R5,L3
+RET
+
+END
